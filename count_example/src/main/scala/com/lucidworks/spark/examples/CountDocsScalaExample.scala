@@ -13,14 +13,18 @@ object CountDocsInCollection {
     val spark = SparkSession
         .builder
         .appName("CountDocsJavaExample")
+        .config("spark.master", "local")
         .getOrCreate()
 
-//    logger.info(s"Spark conf dump: ${spark.sparkContext.getConf.toDebugString}")
-//    logger.info(s"System properties: ${System.getProperties.keySet()}")
-//    logger.info(s"Env properties: ${System.getenv().keySet()}")
-    val df = spark.read.format("solr").option("collection", "system_history").load()
-//    df.count()
-    logger.info("Document count is  " + df.count())
+    val opts = Map(
+      "collection" -> "analysts",
+      "query" -> "*:*",
+      "fl" -> "id",
+    "zkhost"-> "localhost:9983")
+    val data = spark.read.format("solr").options(opts).load
+
+    logger.info("Document count is  " + data.count())
+    println(data.count())
     spark.stop()
     System.exit(0)
   }

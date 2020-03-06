@@ -107,7 +107,7 @@ object RemoveDuplicateProfilesFromSolrCollection {
     val solrQuery = new SolrQuery(profile + " AND creator__id:" + id)
     //solrQuery.addFilterQuery("NOT(type:profile)")
     solrQuery.setRows(10000)
-    logger.info(s"Sending query to get records to update ... ${solrQuery.toString}")
+    logger.info(s"Sending query to get records to update ... ${solrQuery.toString} is the string value")
     val qr = SolrSupport.getCachedCloudClient(zkHost).query(collection, solrQuery)
     logger.info("Response found for the above query: " + qr.getResults.getNumFound)
     qr.getResults
