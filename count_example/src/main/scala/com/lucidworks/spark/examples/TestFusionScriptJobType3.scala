@@ -14,6 +14,8 @@ object TestFusionScriptJobType3 {
      num1 + num2
   }
 
+
+
   //use logger statements
   //logger.info("testing addition")
 
@@ -35,3 +37,4 @@ object TestFusionScriptJobType3 {
 
 
 //println(output)
+

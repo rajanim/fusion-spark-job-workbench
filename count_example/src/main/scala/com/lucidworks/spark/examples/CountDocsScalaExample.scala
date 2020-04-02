@@ -17,11 +17,24 @@ object CountDocsInCollection {
         .getOrCreate()
 
     val opts = Map(
-      "collection" -> "analysts",
+      "collection" -> "Films_signals_aggr",
       "query" -> "*:*",
       "fl" -> "id",
-    "zkhost"-> "localhost:9983")
+    "zkhost"-> "localhost:9983/lwfusion/4.2.4/solr")
     val data = spark.read.format("solr").options(opts).load
+    logger.info("Document count is : " + data.count())
+   // println(data.count())
+
+    data.foreachPartition(rows => {
+      rows.foreach({ r => {
+       //val doc =  r.getValuesMap(Seq("id", "doc_id_s", "aggr_count_i"))
+
+
+
+      }
+
+      })
+    })
 
     logger.info("Document count is  " + data.count())
     println(data.count())
