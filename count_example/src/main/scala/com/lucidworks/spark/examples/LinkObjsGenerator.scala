@@ -29,13 +29,16 @@ object LinkObjsGenerator {
     val batchSize = 100
     //get solr client
     val solrClient = getCachedCloudClient(zkHost)
-
+    //query documents for category/entities type
     val reports = getEntitiesDocuments(zkHost, sourceCollection, "common_component_type_s", "Report")
+    //iterator through docs
     val reportsIter = reports.getResults.iterator()
+    //add newly created docs to list
     val solrInputDocs = new util.LinkedList[SolrInputDocument]
+    //iterate through reports
     while (reportsIter.hasNext) {
       val report = reportsIter.next()
-      val entitiesQuery = getReportRelatedEntitiesQry(report)
+      val entitiesQuery = getReportConnectedEntitiesQry(report)
       val solrQuery = new SolrQuery().setQuery(entitiesQuery)
       val entitiesQueryResponse = querySolr(zkHost, sourceCollection, solrQuery)
       val linkedEntitiesIter = entitiesQueryResponse.getResults.iterator()
@@ -50,9 +53,8 @@ object LinkObjsGenerator {
 
       }
 
-
     }
-
+    SolrSupport.sendBatchToSolr(solrClient, destinationCollection, JavaConversions.collectionAsScalaIterable(solrInputDocs), Option(1000))
 
   }
 
@@ -64,7 +66,7 @@ object LinkObjsGenerator {
     solrInputDocument.addField("to_id_s", toDoc.get("id").toString)
     solrInputDocument.addField("to_name_s", "common_main_s")
     solrInputDocument.addField("to_type_s", toDoc.get("common_component_type_s"))
-    //todo - update field value of validBeginDate_tdt
+    //todo - update field value with right field name - validBeginDate_tdt
     solrInputDocument.addField("validBeginDate_tdt", toDoc.get("report_date_tdt"))
     solrInputDocument.addField("validEndDate_tdt", "9999-12-31T00:00:00.000Z")
     solrInputDocument.addField("linkStrength_d", "1")
@@ -74,7 +76,7 @@ object LinkObjsGenerator {
 
   }
 
-  def getReportRelatedEntitiesQry(document: SolrDocument): String = {
+  def getReportConnectedEntitiesQry(document: SolrDocument): String = {
     val fields = document.iterator()
     val stringBuffer = new StringBuffer()
     while (fields.hasNext) {
