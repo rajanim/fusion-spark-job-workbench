@@ -8,12 +8,9 @@ import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.{SolrDocument, SolrInputDocument}
 import org.slf4j.LoggerFactory
-
 import scala.collection.JavaConversions
 
-class LinkObjsGenerator {
 
-}
 
 object LinkObjsGenerator {
   val logger = LoggerFactory.getLogger("Fusion Link Objects Generator")
@@ -38,7 +35,7 @@ object LinkObjsGenerator {
     //iterate through reports
     while (reportsIter.hasNext) {
       val report = reportsIter.next()
-      val entitiesQuery = getReportConnectedEntitiesQry(report)
+      val entitiesQuery = getConnectedEntitiesQry(report)
       val solrQuery = new SolrQuery().setQuery(entitiesQuery)
       val entitiesQueryResponse = querySolr(zkHost, sourceCollection, solrQuery)
       val linkedEntitiesIter = entitiesQueryResponse.getResults.iterator()
@@ -76,7 +73,7 @@ object LinkObjsGenerator {
 
   }
 
-  def getReportConnectedEntitiesQry(document: SolrDocument): String = {
+  def getConnectedEntitiesQry(document: SolrDocument): String = {
     val fields = document.iterator()
     val stringBuffer = new StringBuffer()
     while (fields.hasNext) {
@@ -139,3 +136,6 @@ object LinkObjsGenerator {
   }
 
 }
+
+//todo :  uncomment when running this script as a scala spark shell job in fusion.
+//LinkObjsGenerator.main(Array())
