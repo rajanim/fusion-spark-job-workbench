@@ -7,7 +7,9 @@ import com.lucidworks.spark.util.SolrSupport.getCachedCloudClient
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.{SolrDocument, SolrInputDocument}
+import org.apache.spark.{SparkConf, SparkContext}
 import org.slf4j.LoggerFactory
+
 import scala.collection.JavaConversions
 
 
@@ -19,15 +21,19 @@ object LinkObjsGenerator {
   def main(args: Array[String]): Unit = {
     val zkHost = System.getProperty("solr.zkhost")
     logger.info("zkhost", zkHost);
-    //todo : get collection name from system property or config element
-    val sourceCollection = "JPM_Search_2"
-    val destinationCollection = "JPM_Search_2_Fusion_KG_Links"
-    //todo - take it as input param, do not hardcode.
-    val batchSize = 100
+    val sc = SparkContext.getOrCreate()
+    val sourceCollection = sc.getConf.get("spark.sourceCollection")
+    logger.info("sourceCollection", sourceCollection);
+    val destinationCollection = sc.getConf.get("spark.destinationCollection") //"JPM_Search_2_Fusion_KG_Links"
+    logger.info("destinationCollection", destinationCollection);
+    val batchSize = sc.getConf.get("spark.solrBatchSize").toInt
     //get solr client
     val solrClient = getCachedCloudClient(zkHost)
     //query documents for category/entities type
     val reports = getEntitiesDocuments(zkHost, sourceCollection, "common_component_type_s", "Report")
+    if(reports!=null){
+      logger.info("reports docs", reports.getResults.getNumFound)
+    }
     //iterator through docs
     val reportsIter = reports.getResults.iterator()
     //add newly created docs to list
@@ -36,8 +42,11 @@ object LinkObjsGenerator {
     while (reportsIter.hasNext) {
       val report = reportsIter.next()
       val entitiesQuery = getConnectedEntitiesQry(report)
+      logger.info("entitiesQuery: ", entitiesQuery)
       val solrQuery = new SolrQuery().setQuery(entitiesQuery)
       val entitiesQueryResponse = querySolr(zkHost, sourceCollection, solrQuery)
+      if(entitiesQueryResponse!=null)
+      logger.info("entitiesQueryResponse: ", entitiesQueryResponse.getResults.getNumFound)
       val linkedEntitiesIter = entitiesQueryResponse.getResults.iterator()
       while (linkedEntitiesIter.hasNext) {
         val linkedEntity = linkedEntitiesIter.next()
