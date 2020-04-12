@@ -31,37 +31,37 @@ object LinkObjsGenerator {
     val solrClient = getCachedCloudClient(zkHost)
     //query documents for category/entities type
     val reports = getEntitiesDocuments(zkHost, sourceCollection, "common_component_type_s", "Report")
-    if(reports!=null){
+    if(reports!=null && reports.getResults!=null && reports.getResults.getNumFound>0) {
       logger.info("reports docs", reports.getResults.getNumFound)
-    }
-    //iterator through docs
-    val reportsIter = reports.getResults.iterator()
-    //add newly created docs to list
-    val solrInputDocs = new util.LinkedList[SolrInputDocument]
-    //iterate through reports
-    while (reportsIter.hasNext) {
-      val report = reportsIter.next()
-      val entitiesQuery = getConnectedEntitiesQry(report)
-      logger.info("entitiesQuery: ", entitiesQuery)
-      val solrQuery = new SolrQuery().setQuery(entitiesQuery)
-      val entitiesQueryResponse = querySolr(zkHost, sourceCollection, solrQuery)
-      if(entitiesQueryResponse!=null)
-      logger.info("entitiesQueryResponse: ", entitiesQueryResponse.getResults.getNumFound)
-      val linkedEntitiesIter = entitiesQueryResponse.getResults.iterator()
-      while (linkedEntitiesIter.hasNext) {
-        val linkedEntity = linkedEntitiesIter.next()
-        val linkObj = getLinkedObject(report, linkedEntity)
-        solrInputDocs.add(linkObj)
-        if(solrInputDocs.size()>batchSize){
-          SolrSupport.sendBatchToSolr(solrClient, destinationCollection, JavaConversions.collectionAsScalaIterable(solrInputDocs), Option(1000))
-        solrInputDocs.clear()
+
+      //iterator through docs
+      val reportsIter = reports.getResults.iterator()
+      //add newly created docs to list
+      val solrInputDocs = new util.LinkedList[SolrInputDocument]
+      //iterate through reports
+      while (reportsIter.hasNext) {
+        val report = reportsIter.next()
+        val entitiesQuery = getConnectedEntitiesQry(report)
+        logger.info("entitiesQuery: ", entitiesQuery)
+        val solrQuery = new SolrQuery().setQuery(entitiesQuery)
+        val entitiesQueryResponse = querySolr(zkHost, sourceCollection, solrQuery)
+        if (entitiesQueryResponse != null && entitiesQueryResponse.getResults!=null && entitiesQueryResponse.getResults.getNumFound>0)
+          logger.info("entitiesQueryResponse: ", entitiesQueryResponse.getResults.getNumFound)
+        val linkedEntitiesIter = entitiesQueryResponse.getResults.iterator()
+        while (linkedEntitiesIter.hasNext) {
+          val linkedEntity = linkedEntitiesIter.next()
+          val linkObj = getLinkedObject(report, linkedEntity)
+          solrInputDocs.add(linkObj)
+          if (solrInputDocs.size() > batchSize) {
+            SolrSupport.sendBatchToSolr(solrClient, destinationCollection, JavaConversions.collectionAsScalaIterable(solrInputDocs), Option(1000))
+            solrInputDocs.clear()
+          }
+
         }
 
       }
-
+      SolrSupport.sendBatchToSolr(solrClient, destinationCollection, JavaConversions.collectionAsScalaIterable(solrInputDocs), Option(1000))
     }
-    SolrSupport.sendBatchToSolr(solrClient, destinationCollection, JavaConversions.collectionAsScalaIterable(solrInputDocs), Option(1000))
-
   }
 
   def getLinkedObject(fromDoc: SolrDocument, toDoc: SolrDocument): SolrInputDocument = {
