@@ -100,25 +100,26 @@ object LinkObjsGenerator {
       val fieldValue = field.getValue
       fieldName match {
         case "rsrch_primary_company_id_ss" => {
-          val values = fieldValue.asInstanceOf[Array[String]]
+          val values = fieldValue.asInstanceOf[java.util.List[String]].iterator()
           val spaceSeparatedValues = new StringBuffer()
-          values.foreach(spaceSeparatedValues.append(_).append(" "))
-          stringBuffer.append("rsrch_primary_company_id_ss:").append(spaceSeparatedValues.toString.trim).append(" OR ")
-
+          while (values.hasNext)
+            spaceSeparatedValues.append(values.next()).append(" ")
+          stringBuffer.append("rsrch_primary_company_id_ss:(").append(spaceSeparatedValues.toString.trim).append(")").append(" OR ")
         }
         case "rsrch_secondary_company_id_ss" => {
-          val values = fieldValue.asInstanceOf[Array[String]]
+          val values = fieldValue.asInstanceOf[java.util.List[String]].iterator()
           val spaceSeparatedValues = new StringBuffer()
-          values.foreach(spaceSeparatedValues.append(_).append(" "))
-          stringBuffer.append("rsrch_secondary_company_id_ss:").append(spaceSeparatedValues.toString.trim).append(" OR ")
+          while (values.hasNext)
+            spaceSeparatedValues.append(values.next()).append(" ")
+          stringBuffer.append("rsrch_secondary_company_id_ss:(").append(spaceSeparatedValues.toString.trim).append(")").append(" OR ")
         }
         case _ => {println(fieldName)}
       }
     }
 
     if (stringBuffer.toString.endsWith(" OR ")) {
-      val strLength = stringBuffer.length - 1
-      stringBuffer.delete(strLength - 3, strLength)
+      val strLength = stringBuffer.length
+      stringBuffer.delete(strLength - 4, strLength)
     }
 
     stringBuffer.toString
