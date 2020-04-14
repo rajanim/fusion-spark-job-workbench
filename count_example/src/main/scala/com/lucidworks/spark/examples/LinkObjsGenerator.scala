@@ -68,20 +68,27 @@ object LinkObjsGenerator {
     val solrInputDocument = new SolrInputDocument()
     if(fromDoc.containsKey("id"))
     solrInputDocument.addField("from_id_s", fromDoc.get("id").toString)
+
     if(fromDoc.containsKey("common_main_s"))
     solrInputDocument.addField("from_name_s", fromDoc.get("common_main_s"))
+
     if(fromDoc.containsKey("common_component_type_s"))
     solrInputDocument.addField("from_type_s", fromDoc.get("common_component_type_s"))
+
     if(fromDoc.containsKey("id"))
     solrInputDocument.addField("to_id_s", toDoc.get("id").toString)
+
     if(fromDoc.containsKey("common_main_s"))
-    solrInputDocument.addField("to_name_s", "common_main_s")
+    solrInputDocument.addField("to_name_s", toDoc.get("common_main_s").toString)
+
     if(fromDoc.containsKey("common_component_type_s"))
     solrInputDocument.addField("to_type_s", toDoc.get("common_component_type_s"))
+
     if(fromDoc.containsKey("rsrch_create_datetime_dt"))
-      solrInputDocument.addField("validBeginDate_tdt", toDoc.get("rsrch_create_datetime_dt"))
+      solrInputDocument.addField("validBeginDate_tdt", fromDoc.get("rsrch_create_datetime_dt"))
+
     if(fromDoc.containsKey("rsrch_product_expiry_datetime_dt"))
-      solrInputDocument.addField("validEndDate_tdt", toDoc.get("rsrch_product_expiry_datetime_dt"))//"9999-12-31T00:00:00.000Z")
+      solrInputDocument.addField("validEndDate_tdt", fromDoc.get("rsrch_product_expiry_datetime_dt"))//"9999-12-31T00:00:00.000Z")
     if(fromDoc.containsKey("id"))
       solrInputDocument.addField("linkStrength_d", "1")
     if(fromDoc.containsKey("common_component_type_s"))
