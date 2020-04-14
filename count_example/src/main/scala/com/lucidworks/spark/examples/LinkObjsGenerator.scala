@@ -86,8 +86,8 @@ object LinkObjsGenerator {
       solrInputDocument.addField("linkStrength_d", "1")
     if(fromDoc.containsKey("common_component_type_s"))
       solrInputDocument.addField("link_name", fromDoc.get("common_component_type_s") + "_" + toDoc.get("common_component_type_s"))
-
     solrInputDocument
+
 
   }
 
@@ -97,15 +97,22 @@ object LinkObjsGenerator {
     while (fields.hasNext) {
       val field = fields.next
       val fieldName = field.getKey
-      val fieldValue = field.getValue.toString
+      val fieldValue = field.getValue
       fieldName match {
         case "rsrch_primary_company_id_ss" => {
-          stringBuffer.append("rsrch_primary_company_id_ss:").append(fieldValue).append(" OR ")
+          val values = fieldValue.asInstanceOf[Array[String]]
+          val spaceSeparatedValues = new StringBuffer()
+          values.foreach(spaceSeparatedValues.append(_).append(" "))
+          stringBuffer.append("rsrch_primary_company_id_ss:").append(spaceSeparatedValues.toString.trim).append(" OR ")
 
         }
         case "rsrch_secondary_company_id_ss" => {
-          stringBuffer.append("rsrch_secondary_company_id_ss:").append(fieldValue).append(" OR ")
+          val values = fieldValue.asInstanceOf[Array[String]]
+          val spaceSeparatedValues = new StringBuffer()
+          values.foreach(spaceSeparatedValues.append(_).append(" "))
+          stringBuffer.append("rsrch_secondary_company_id_ss:").append(spaceSeparatedValues.toString.trim).append(" OR ")
         }
+        case _ => {println(fieldName)}
       }
     }
 
