@@ -27,7 +27,7 @@ object ReadWriteToSparkSolr {
     val solrClient = getCachedCloudClient(zkHost)
 
     //read from solr
-    val queryResponse = querySolr(zkHost, sourceCollection, searchQuery, "id, fields,params_defType_ss,params_version_ss")
+    val queryResponse = querySolr(zkHost, sourceCollection, searchQuery, "id,fields,params_defType_ss,params_version_ss")
     //get first document
     val doc = queryResponse.getResults.get(0)
     println(doc.getFieldValue("id"))

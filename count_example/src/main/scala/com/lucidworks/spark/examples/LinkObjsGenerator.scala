@@ -2,8 +2,10 @@ package com.lucidworks.spark.examples
 
 import java.util
 
+import com.lucidworks.spark.fusion.FusionPipelineClient
 import com.lucidworks.spark.util.{SolrQuerySupport, SolrSupport}
 import com.lucidworks.spark.util.SolrSupport.getCachedCloudClient
+import org.apache.http.client.methods.HttpGet
 import org.apache.solr.client.solrj.SolrQuery
 import org.apache.solr.client.solrj.response.QueryResponse
 import org.apache.solr.common.{SolrDocument, SolrInputDocument}
@@ -140,6 +142,13 @@ object LinkObjsGenerator {
     queryResponse
   }
 
+  def getEntitiesMap(fileName:String) ={
+    val getRequest = new HttpGet(fileName)
+    val fusionPipelineClient = new FusionPipelineClient("", "","","").getHttpClient.execute(getRequest)
+
+    fusionPipelineClient.getEntity
+      null
+  }
 
   //generic methods
 
